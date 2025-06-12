@@ -1,17 +1,22 @@
 // 监听来自 popup 的消息
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === 'convertPdfData') {
-    // 将 Base64 字符串解码为 Uint8Array
-    const byteCharacters = atob(request.data);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
+// 使用一个标志来确保监听器只被添加一次
+if (typeof window.pdfToImageConverterListenerAttached === 'undefined') {
+  window.pdfToImageConverterListenerAttached = true;
+
+  chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === 'convertPdfData') {
+      // 将 Base64 字符串解码为 Uint8Array
+      const byteCharacters = atob(request.data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const uint8Array = new Uint8Array(byteNumbers);
+      
+      convertPDFToImages(uint8Array, request.baseName);
     }
-    const uint8Array = new Uint8Array(byteNumbers);
-    
-    convertPDFToImages(uint8Array, request.baseName);
-  }
-});
+  });
+}
 
 async function convertPDFToImages(uint8Array, baseName) {
   try {

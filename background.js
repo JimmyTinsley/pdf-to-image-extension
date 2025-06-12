@@ -35,7 +35,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         function injectNextScript(index) {
           if (index >= scripts.length) {
             // 所有脚本注入完成，发送数据
-            const filename = url.split('/').pop();
+            const filename = decodeURIComponent(url.split('/').pop());
             const baseName = filename.substring(0, filename.lastIndexOf('.'));
             chrome.tabs.sendMessage(tabId, {
               action: 'convertPdfData',
