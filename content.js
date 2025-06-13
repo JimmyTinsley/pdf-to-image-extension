@@ -26,6 +26,8 @@ async function convertPDFToImages(uint8Array, baseName) {
     // 获取 PDF 文档
     const pdfDoc = await pdfjsLib.getDocument({ data: uint8Array }).promise;
     const numPages = pdfDoc.numPages;
+    // 发送开始转换的消息
+    chrome.runtime.sendMessage({ action: 'conversionProgress', status: 'start', total: numPages });
     const images = [];
 
     // 遍历每一页
@@ -44,6 +46,9 @@ async function convertPDFToImages(uint8Array, baseName) {
         canvasContext: context,
         viewport: viewport
       }).promise;
+      
+      // 发送进度消息
+      chrome.runtime.sendMessage({ action: 'conversionProgress', status: 'progress', current: i, total: numPages });
 
       // 将 canvas 转换为图片
       const imageData = canvas.toDataURL('image/jpeg', 0.95);
@@ -55,18 +60,17 @@ async function convertPDFToImages(uint8Array, baseName) {
       downloadImage(images[0], `${baseName}_to_image.jpg`);
     } else {
       // 多页则打包下载
-      downloadAsZip(images, baseName);
+      await downloadAsZip(images, baseName);
     }
+
   } catch (error) {
     console.error('转换过程中出错:', error);
+    // （可选）向用户显示错误通知
   }
 }
 
 function downloadImage(dataUrl, filename) {
-  const link = document.createElement('a');
-  link.href = dataUrl;
-  link.download = filename;
-  link.click();
+  chrome.runtime.sendMessage({ action: 'conversionComplete', dataUrl: dataUrl, filename: filename });
 }
 
 async function downloadAsZip(images, baseName) {
@@ -78,10 +82,16 @@ async function downloadAsZip(images, baseName) {
     zip.file(`${baseName}_to_image_${index + 1}.jpg`, base64Data, { base64: true });
   });
 
-  // 生成并下载 zip 文件
+  // 生成 zip 文件
   const content = await zip.generateAsync({ type: 'blob' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(content);
-  link.download = `${baseName}_to_image.zip`;
-  link.click();
+  
+  const reader = new FileReader();
+  reader.onload = function(event) {
+    chrome.runtime.sendMessage({
+      action: 'conversionComplete',
+      dataUrl: event.target.result,
+      filename: `${baseName}_to_image.zip`
+    });
+  };
+  reader.readAsDataURL(content);
 }

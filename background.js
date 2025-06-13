@@ -61,5 +61,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         console.error('获取 PDF 数据错误:', error);
         // 可以选择发送错误消息给 popup 或 content
       });
+  } else if (message.action === 'conversionProgress') {
+    // 将进度消息直接转发给 popup
+    chrome.runtime.sendMessage(message);
+  } else if (message.action === 'conversionComplete') {
+    // 触发“另存为”下载
+    chrome.downloads.download({
+      url: message.dataUrl,
+      filename: message.filename,
+      saveAs: true
+    });
+    // 转发一个纯净的完成消息给 popup，让它关闭
+    chrome.runtime.sendMessage({ action: 'conversionComplete' });
   }
 });

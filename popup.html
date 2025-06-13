@@ -35,6 +35,22 @@
       background-color: #f2dede;
       color: #a94442;
     }
+    .progress-container {
+      width: 100%;
+      background-color: #f3f3f3;
+      border-radius: 4px;
+      margin-top: 10px;
+      display: none; /* 默认隐藏 */
+    }
+    .progress-bar {
+      width: 0%;
+      height: 20px;
+      background-color: #4CAF50;
+      text-align: center;
+      line-height: 20px;
+      color: white;
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body>
@@ -42,6 +58,9 @@
   <input type="file" id="pdfFile" accept=".pdf" style="display: none;">
   <button id="convertBtn">转换为图片并下载</button>
   <div id="status" class="status"></div>
+  <div id="progressContainer" class="progress-container">
+    <div id="progressBar" class="progress-bar">0%</div>
+  </div>
   <script src="popup.js"></script>
 </body>
 </html> 
