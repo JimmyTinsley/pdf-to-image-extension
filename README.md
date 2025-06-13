@@ -4,8 +4,6 @@
 
 一款简洁高效的浏览器扩展，旨在将您在浏览器中打开的任何 PDF 文件轻松转换为高质量的 JPG 图片。无论是单页文档还是多页报告，都可以一键转换并下载。
 
-![应用截图](https://raw.githubusercontent.com/mankvis/PDF-to-Image-Converter-Edge-extension/main/screenshot/screenshot.png)
-
 ---
 
 ## ✨ 功能亮点
